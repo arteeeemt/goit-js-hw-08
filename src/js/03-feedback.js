@@ -1,40 +1,44 @@
 import throttle from 'lodash.throttle';
-let throttle = require('lodash.throttle');
 
+const STORAGE_DATA = 'feedback-form-state';
 
-const form = document.querySelector(".feedback-form")
-const email = document.querySelector("input")
-const message = document.querySelector("textarea")
-// const submit = document.querySelector(".submit-btn")
+const form = document.querySelector("form");
+const input = document.querySelector("input");
+const message = document.querySelector("textarea");
 
+const dataForm = {};
 
-form.addEventListener('input', checkForm)
+checkForm();
 
+form.addEventListener('input', throttle(formOutput, 500));
 
-window.addEventListener('DOMContentLoaded', function () {
-    const saveValueOfInput = this.localStorage.getItem("email");
-    const saveValueOfMessage = this.localStorage.getItem("message")
-    if (saveValueOfInput !== null) {
-        email.value = JSON.parse(saveValueOfInput)
-    }
-    if (saveValueOfMessage !== null) {
-        message.value = JSON.parse(saveValueOfMessage)
-        
-    }
-    
-})
-
-function checkForm(evt) {
-    evt.preventDefault()
-    
-    const valueToSaveInput = email.value
-    
-    const valueToSaveMessage = message.value
-    localStorage.setItem("email", JSON.stringify(valueToSaveInput))
-    localStorage.setItem("message", JSON.stringify(valueToSaveMessage))
-    
+function formOutput(event) {
+    dataForm[event.target.name] = event.target.value;
+    localStorage.setItem(STORAGE_DATA, JSON.stringify(dataForm));
+    console.log(dataForm);
 }
 
-// form.addEventListener("click", clickHandler)
-    
+form.addEventListener('submit', formSubmit);
+
+function formSubmit(event) {
+    event.preventDefault();
+    localStorage.removeItem(STORAGE_DATA);
+    input.value = '';
+    message.value = '';
+
+    console.log(dataForm);
+}
+
+function checkForm() {
+    const savedMessage = JSON.parse(localStorage.getItem(STORAGE_DATA))
+    if(savedMessage){
+        input.value = savedMessage.email
+        message.value = savedMessage.message
+    }
+}
+
+
+
+
+
 
