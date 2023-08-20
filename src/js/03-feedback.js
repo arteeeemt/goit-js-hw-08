@@ -36,49 +36,35 @@
 // })
 
 
-import throttle from 'lodash.throttle';
-
-const STORAGE_KEY = 'feedback-form-state';
-const form = document.querySelector("form");
-
-
-function dataFormSave() {
-    const data = {
-        email: form.elements.email.value,
-        message: form.elements.message.value
-    };
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-}
-
-
-form.elements.email.addEventListener('input', throttle(dataFormSave, 500));
-form.elements.message.addEventListener('input', throttle(dataFormSave, 500));
-
-
-const STORAGE_DATA = JSON.parse(localStorage.getItem(STORAGE_KEY));
-if (STORAGE_DATA && STORAGE_DATA.email && STORAGE_DATA.message) {
-    form.elements.email.value = STORAGE_DATA.email;
-    form.elements.message.value = STORAGE_DATA.message;
-}
-
-
-form.addEventListener('submit', function (evt) {
-    evt.preventDefault();
-
-    if (form.elements.email.value === '' || form.elements.message.value === '') {
-        return alert('Заполните все поля!');
+document.addEventListener("DOMContentLoaded", function() {
+    const savedData = JSON.parse(localStorage.getItem(STORAGE_KEY));
+    if (savedData) {
+        form.elements.email.value = savedData.email || '';
+        form.elements.message.value = savedData.message || '';
     }
 
-    const formData = {
-        email: form.elements.email.value,
-        message: form.elements.message.value
-    };
+    form.elements.email.addEventListener('input', throttle(dataFormSave, 500));
+    form.elements.message.addEventListener('input', throttle(dataFormSave, 500));
 
-    console.log(formData);
-    form.reset();
-    localStorage.removeItem(STORAGE_KEY);
+    form.addEventListener('submit', function (evt) {
+        evt.preventDefault();
+        if (form.elements.email.value === '' && form.elements.message.value === '') {
+            return alert('Заповніть усі поля!');
+        }
+        const formData = {
+            email: form.elements.email.value,
+            message: form.elements.message.value
+        };
+        console.log(formData);  // Выводим данные в консоль
+        form.reset();
+    });
+    
+    // После загрузки страницы, принудительно установите значения полей формы из localStorage
+    if (savedData) {
+        form.elements.email.value = savedData.email || '';
+        form.elements.message.value = savedData.message || '';
+    }
 });
-
 
 
 
